@@ -3,9 +3,10 @@
 #include <stdio.h>
 #include <fcntl.h>
 #include <errno.h>
+
 const char *lock_file = "/tmp/LCK.test2";
-int main()
-{
+
+int main() {
     int file_desc;
     int tries = 10;
 
@@ -16,12 +17,14 @@ int main()
             sleep(3);
         }
         else {
+                /* critical region */
             printf("%d - I have exclusive access\n", getpid());
             sleep(1);
             (void)close(file_desc);
             (void)unlink(lock_file);
+                /* non-critical region */
             sleep(2);
         }
-    }
+    } /* while */
     exit(EXIT_SUCCESS);
 }

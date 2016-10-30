@@ -13,6 +13,7 @@ char *menu[] = {
     "q - quit",
     NULL,
 };
+
 int getchoice(char *greet, char *choices[], FILE *in, FILE *out);
 int char_to_terminal(int char_to_write);
 
@@ -22,9 +23,11 @@ int main()
     FILE *input;
     FILE *output;
     struct termios initial_settings, new_settings;
+
     if (!isatty(fileno(stdout))) {
         fprintf(stderr,"You are not a terminal, OK.\n");
     }
+
     input = fopen("/dev/tty", "r");
     output = fopen("/dev/tty", "w");
     if(!input || !output) {
@@ -41,10 +44,13 @@ int main()
     if(tcsetattr(fileno(input), TCSANOW, &new_settings) != 0) {
         fprintf(stderr,"could not set attributes\n");
     }
+
     do {
         choice = getchoice("Please select an action", menu, input, output);
         printf("You have chosen: %c\n", choice);
+	sleep(1);
     } while (choice != 'q');
+
     tcsetattr(fileno(input),TCSANOW,&initial_settings);
     exit(0);
 }
@@ -54,10 +60,12 @@ int getchoice(char *greet, char *choices[], FILE *in, FILE *out)
     int chosen = 0;
     int selected;
     int screenrow, screencol = 10;
+
     char **option;
     char *cursor, *clear;
 
     output_stream = out;
+
     setupterm(NULL,fileno(out), (int *)0);
     cursor = tigetstr("cup");
     clear = tigetstr("clear");
@@ -67,7 +75,7 @@ int getchoice(char *greet, char *choices[], FILE *in, FILE *out)
     tputs(tparm(cursor, screenrow, screencol), 1, char_to_terminal);
     fprintf(out, "Choice: %s", greet);
     screenrow += 2;
-    option = choices;
+    option = choices;        
     while(*option) {
         tputs(tparm(cursor, screenrow, screencol), 1, char_to_terminal);
         fprintf(out,"%s", *option);
@@ -75,8 +83,9 @@ int getchoice(char *greet, char *choices[], FILE *in, FILE *out)
         option++;
     }
     fprintf(out, "\n");
+
     do {
-        fflush(out);
+	fflush(out);
         selected = fgetc(in);
         option = choices;
         while(*option) {
@@ -94,6 +103,7 @@ int getchoice(char *greet, char *choices[], FILE *in, FILE *out)
     tputs(clear, 1, char_to_terminal);
     return selected;
 }
+
 int char_to_terminal(int char_to_write)
 {
     if (output_stream) putc(char_to_write, output_stream);

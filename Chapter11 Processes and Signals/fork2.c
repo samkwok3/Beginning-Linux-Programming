@@ -2,14 +2,16 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
+
 int main()
 {
     pid_t pid;
     char *message;
     int n;
+
     printf("fork program starting\n");
     pid = fork();
-    switch(pid)
+    switch(pid) 
     {
     case -1:
         perror("fork failed");
@@ -23,6 +25,7 @@ int main()
         n = 5;
         break;
     }
+
     for(; n > 0; n--) {
         puts(message);
         sleep(1);
